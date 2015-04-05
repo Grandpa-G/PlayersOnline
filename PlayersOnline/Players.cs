@@ -101,13 +101,13 @@ namespace PlayersOnline
             }
 
             if (playerList.Count == 0)
-                args.Player.SendMessage("   No players online at this time.", Color.LightSalmon);
+                args.Player.SendSuccessMessage("No players online at this time.");
             else
             {
                 string plural = "";
                 if (playerList.Count > 1)
                     plural = "s";
-                args.Player.SendMessage(playerList.Count + " player" + plural + " online at this time.", Color.LightSalmon);
+                args.Player.SendSuccessMessage(playerList.Count + "/" + TShock.Config.MaxSlots + " player" + plural + " online at this time.");
                 // Query for ascending sort.
                 IEnumerable<Player> playerSort =
                     from Player p in playerList
@@ -115,12 +115,12 @@ namespace PlayersOnline
                     select p;
                 foreach (Player p in playerSort)
                 {
-                    args.Player.SendMessage(String.Format("   {0} {1} Group:{2} UserAccount:{3}", p.Name, p.IP, p.Group, p.UserAccountName ?? "<none>"), Color.LightSalmon);
+                    args.Player.SendInfoMessage(String.Format(" {0} {1} Group:{2} UserAccount:{3}", p.Name, p.IP, p.Group, p.UserAccountName ?? "<none>"));
                     playersFound = true;
                 }
                 if (!playersFound)
                 {
-                    args.Player.SendMessage("   No players online at this time.", Color.LightSalmon);
+                    args.Player.SendSuccessMessage("No players online at this time.");
                 }
             }
 
