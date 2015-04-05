@@ -54,7 +54,7 @@ namespace PlayersOnline
             ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
             TShockAPI.Hooks.PlayerHooks.PlayerPostLogin += OnLogin;
 
-            Commands.ChatCommands.Add(new Command("PlayersOnline.allow", PlayerList, "PlayersOnline"));
+            Commands.ChatCommands.Add(new Command("PlayersOnline.allow", PlayerList, "players"));
             Commands.ChatCommands.Add(new Command("PlayersOnline.allow", PlayerList, "po"));
 
         }
@@ -81,107 +81,110 @@ namespace PlayersOnline
             bool playersFound = false;
             bool help = false;
 
-             PlayerOnlineListArguments arguments = new PlayerOnlineListArguments(args.Parameters.ToArray());
+            PlayerOnlineListArguments arguments = new PlayerOnlineListArguments(args.Parameters.ToArray());
             if (arguments.Contains("-help"))
                 help = true;
 
             if (help)
             {
-                args.Player.SendMessage("Syntax: /PlayersOnline [-help] ", Color.Red);
+                args.Player.SendMessage("Syntax: /playersonline [-help] ", Color.Red);
                 args.Player.SendMessage("Flags: ", Color.LightSalmon);
                 args.Player.SendMessage("   -help     this information", Color.LightSalmon);
                 return;
             }
+
+            List<object> playerList = new List<object>();
             foreach (TSPlayer tsPlayer in TShock.Players.Where(p => null != p))
             {
-                args.Player.SendMessage(String.Format("   {0} {1} Group:{2} UserAccount:{3}", tsPlayer.Name, tsPlayer.IP, tsPlayer.Group.Name, tsPlayer.UserAccountName ?? "<none>"), Color.LightSalmon);
-                playersFound = true;
-                var player = new Dictionary<string, object>
-				{
-					{"nickname", tsPlayer.Name},
-					{"index", tsPlayer.Index},
-					{"ip", tsPlayer.IP},
-					{"username", tsPlayer.UserAccountName ?? ""},
-					{"account", tsPlayer.UserID},
-					{"group", tsPlayer.Group.Name},
-					{"active", tsPlayer.Active},
-					{"state", tsPlayer.State},
-					{"team", tsPlayer.Team},
-				};
+                Player player = new Player(tsPlayer.Name, tsPlayer.IP, tsPlayer.Group.Name, tsPlayer.UserAccountName);
+                playerList.Add(player);
             }
-            if (!playersFound)
-            {
+
+            if (playerList.Count == 0)
                 args.Player.SendMessage("   No players online at this time.", Color.LightSalmon);
-            }
-
-
-        }
-
-        #region application specific commands
-        public class PlayerOnlineListArguments : InputArguments
-        {
-            public string CountLimit
+            else
             {
-                get { return GetValue("limit"); }
-            }
-
-            public string Current
-            {
-                get { return GetValue("-current"); }
-            }
-            public string CurrentShort
-            {
-                get { return GetValue("-c"); }
-            }
-
-            public string Verbose
-            {
-                get { return GetValue("-verbose"); }
-            }
-            public string VerboseShort
-            {
-                get { return GetValue("-v"); }
-            }
-
-            public string Help
-            {
-                get { return GetValue("-help"); }
-            }
-
-            public string Sort
-            {
-                get { return GetValue("-sort"); }
-            }
-            public string SortShort
-            {
-                get { return GetValue("-s"); }
-            }
-            public string Author
-            {
-                get { return GetValue("-author"); }
-            }
-            public string AuthorShort
-            {
-                get { return GetValue("-a"); }
-            }
-
-            public PlayerOnlineListArguments(string[] args)
-                : base(args)
-            {
-            }
-
-            protected bool GetBoolValue(string key)
-            {
-                string adjustedKey;
-                if (ContainsKey(key, out adjustedKey))
+                string plural = "";
+                if (playerList.Count > 1)
+                    plural = "s";
+                args.Player.SendMessage(playerList.Count + " player" + plural + " online at this time.", Color.LightSalmon);
+                // Query for ascending sort.
+                IEnumerable<Player> playerSort =
+                    from Player p in playerList
+                    orderby p.Name //"ascending" is default 
+                    select p;
+                foreach (Player p in playerSort)
                 {
-                    bool res;
-                    bool.TryParse(_parsedArguments[adjustedKey], out res);
-                    return res;
+                    args.Player.SendMessage(String.Format("   {0} {1} Group:{2} UserAccount:{3}", p.Name, p.IP, p.Group, p.UserAccountName ?? "<none>"), Color.LightSalmon);
+                    playersFound = true;
                 }
-                return false;
+                if (!playersFound)
+                {
+                    args.Player.SendMessage("   No players online at this time.", Color.LightSalmon);
+                }
             }
+
         }
-        #endregion
     }
+    public class Player
+    {
+        public string Name { get; set; }
+        public string IP { get; set; }
+        public string Group { get; set; }
+        public string UserAccountName { get; set; }
+
+        public Player(string name, string ip, string group, string useraccountname)
+        {
+            Name = name;
+            IP = ip;
+            Group = group;
+            UserAccountName = useraccountname;
+        }
+
+        public Player()
+        {
+            Name = "";
+            IP = "";
+            Group = "";
+            UserAccountName = "";
+        }
+    }
+
+    #region application specific commands
+    public class PlayerOnlineListArguments : InputArguments
+    {
+        public string Verbose
+        {
+            get { return GetValue("-verbose"); }
+        }
+        public string VerboseShort
+        {
+            get { return GetValue("-v"); }
+        }
+
+        public string Help
+        {
+            get { return GetValue("-help"); }
+        }
+
+
+        public PlayerOnlineListArguments(string[] args)
+            : base(args)
+        {
+        }
+
+        protected bool GetBoolValue(string key)
+        {
+            string adjustedKey;
+            if (ContainsKey(key, out adjustedKey))
+            {
+                bool res;
+                bool.TryParse(_parsedArguments[adjustedKey], out res);
+                return res;
+            }
+            return false;
+        }
+    }
+    #endregion
+
 }
