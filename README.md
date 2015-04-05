@@ -1,10 +1,15 @@
-# Players Online
+### Players Online
 
 Lists information about players online, one player per line. Contains
-•Player name
-•IP address
-•Group name
-•User Account Name
+
+â€¢Player name
+
+â€¢IP address
+
+â€¢Group name
+
+â€¢User Account Name
+
 Invoked by either
 
  playersonline
