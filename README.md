@@ -12,6 +12,6 @@ Lists information about players online, one player per line. Contains
 
 Invoked by either
 
- playersonline
+ players
  or
  po 
