@@ -12,18 +12,14 @@ using System.Web.Script.Serialization;
 
 using Terraria;
 using TShockAPI;
-using Mono.Data.Sqlite;
-using MySql.Data.MySqlClient;
-using Newtonsoft.Json;
 using System.Threading;
 using TerrariaApi.Server;
-using Newtonsoft.Json.Linq;
 using System.Net;
 
 
 namespace PlayersOnline
 {
-    [ApiVersion(1, 17)]
+    [ApiVersion(1, 19)]
     public class Players : TerrariaPlugin
     {
 
@@ -50,11 +46,7 @@ namespace PlayersOnline
         }
         public override void Initialize()
         {
-            //            ServerApi.Hooks.NetGetData.Register(this, GetData);
-            ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
-            TShockAPI.Hooks.PlayerHooks.PlayerPostLogin += OnLogin;
-
-            Commands.ChatCommands.Add(new Command("PlayersOnline.allow", PlayerList, "players"));
+             Commands.ChatCommands.Add(new Command("PlayersOnline.allow", PlayerList, "players"));
             Commands.ChatCommands.Add(new Command("PlayersOnline.allow", PlayerList, "po"));
 
         }
@@ -62,19 +54,9 @@ namespace PlayersOnline
         {
             if (disposing)
             {
-                ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
-                TShockAPI.Hooks.PlayerHooks.PlayerPostLogin -= OnLogin;
             }
             base.Dispose(disposing);
         }
-        private static void OnLeave(LeaveEventArgs args)
-        {
-        }
-
-        private void OnLogin(TShockAPI.Hooks.PlayerPostLoginEventArgs args)
-        {
-        }
-
         private void PlayerList(CommandArgs args)
         {
             bool verbose = false;
