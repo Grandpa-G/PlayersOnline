@@ -19,7 +19,7 @@ using System.Net;
 
 namespace PlayersOnline
 {
-    [ApiVersion(1, 19)]
+    [ApiVersion(1, 21)]
     public class Players : TerrariaPlugin
     {
 
